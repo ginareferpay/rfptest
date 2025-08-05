@@ -267,8 +267,8 @@ export const DashboardView = ({
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-primary">${referralCount}</div>
-                    <div className="text-sm text-muted-foreground">Referral Earnings</div>
+                    <div className="text-2xl font-bold text-primary">${referralCount * 1}</div>
+                    <div className="text-sm text-muted-foreground">Referral Earnings ($1 × {referralCount})</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-electric">{referralCount}</div>

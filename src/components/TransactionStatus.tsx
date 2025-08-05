@@ -16,7 +16,7 @@ export const TransactionStatus = ({ transactionStatus, onDismiss }: TransactionS
   const getStatusIcon = () => {
     switch (status) {
       case 'pending':
-        return <Clock className="h-4 w-4 animate-spin" />;
+        return <Clock className="h-4 w-4 animate-spin text-blue-600" />;
       case 'success':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'error':

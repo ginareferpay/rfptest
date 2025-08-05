@@ -54,7 +54,7 @@ export const ContractStats = ({ contractInfo }: ContractStatsProps) => {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Your Mints</CardTitle>
+          <CardTitle className="text-sm font-medium">Your NFTs</CardTitle>
           <Badge variant={contractInfo.userMints > 0 ? "default" : "outline"}>
             {contractInfo.userMints}
           </Badge>
@@ -62,7 +62,7 @@ export const ContractStats = ({ contractInfo }: ContractStatsProps) => {
         <CardContent>
           <div className="text-2xl font-bold">{contractInfo.userMints}</div>
           <p className="text-xs text-muted-foreground">
-            NFTs owned
+            {contractInfo.userMints === 1 ? 'NFT owned' : 'NFTs owned'}
           </p>
         </CardContent>
       </Card>

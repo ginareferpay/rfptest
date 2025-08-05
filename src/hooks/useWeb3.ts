@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { NETWORK_CONFIG, CONTRACT_ADDRESSES, CONTRACT_ABI, USDC_ABI, FOUNDER_WALLET } from '@/lib/web3/config';
+import { useReferralTracking } from './useReferralTracking';
+import { checkSufficientBalance, estimateGasWithBuffer, executeWithTimeout, parseWeb3Error } from '@/utils/web3Utils';
 
 declare global {
   interface Window {
@@ -62,7 +64,7 @@ export const useWeb3 = () => {
   });
 
   const [referrer, setReferrer] = useState<string>(FOUNDER_WALLET);
-  const [referralCount, setReferralCount] = useState<number>(0);
+  const { referralCount, setupReferralListener, resetReferralCount } = useReferralTracking();
 
   useEffect(() => {
     // Parse referrer from URL
@@ -90,7 +92,7 @@ export const useWeb3 = () => {
           
           if (parseInt(chainId, 16) === NETWORK_CONFIG.chainId) {
             await updateBalances(accounts[0]);
-            await setupReferralListener(accounts[0]);
+            setupReferralListener(accounts[0]);
           }
         }
       } catch (error) {
@@ -135,6 +137,7 @@ export const useWeb3 = () => {
           ...prev,
           balance: formattedBalance,
           nftBalance: Number(nftBalance),
+          referralCount,
           contractInfo: {
             maxSupply: Number(maxSupply),
             totalSupply: Number(totalSupply),
@@ -179,7 +182,7 @@ export const useWeb3 = () => {
         await switchToPolygon();
       } else {
         await updateBalances(accounts[0]);
-        await setupReferralListener(accounts[0]);
+        setupReferralListener(accounts[0]);
       }
     } catch (error: any) {
       console.error('Error connecting wallet:', error);
@@ -248,84 +251,10 @@ export const useWeb3 = () => {
       },
       referralCount: 0,
     });
-    setReferrer(FOUNDER_WALLET); // Reset referrer to founder wallet
-    setReferralCount(0); // Reset referral count
+    setReferrer(FOUNDER_WALLET);
+    resetReferralCount();
   };
 
-  const checkSufficientBalance = (requiredAmount: string, userBalance: string) => {
-    return parseFloat(userBalance) >= parseFloat(requiredAmount);
-  };
-
-  const estimateGas = async (contract: ethers.Contract, method: string, args: any[]) => {
-    try {
-      const gasEstimate = await contract[method].estimateGas(...args);
-      return gasEstimate * 120n / 100n; // Add 20% buffer
-    } catch (error) {
-      console.error('Gas estimation failed:', error);
-      return ethers.parseUnits('500000', 'wei'); // Fallback gas limit
-    }
-  };
-
-  const executeWithTimeout = async (promise: Promise<any>, timeoutMs: number = 300000) => {
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Transaction timeout')), timeoutMs)
-    );
-    return Promise.race([promise, timeout]);
-  };
-
-  const setupReferralListener = async (account: string) => {
-    try {
-      if (window.ethereum) {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        
-        // Get USDC contract
-        const usdcContract = new ethers.Contract(
-          CONTRACT_ADDRESSES.USDC_TOKEN,
-          [
-            {
-              "anonymous": false,
-              "inputs": [
-                {"indexed": true, "internalType": "address", "name": "from", "type": "address"},
-                {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
-                {"indexed": false, "internalType": "uint256", "name": "value", "type": "uint256"}
-              ],
-              "name": "Transfer",
-              "type": "event"
-            }
-          ],
-          provider
-        );
-
-        // Create filter for Transfer events where:
-        // from = ReferPay main contract
-        // to = current user's wallet  
-        const filter = usdcContract.filters.Transfer(CONTRACT_ADDRESSES.MAIN_CONTRACT, account);
-        
-        // Count existing events (historical referrals)
-        const currentBlock = await provider.getBlockNumber();
-        const fromBlock = Math.max(0, currentBlock - 10000); // Look back ~10k blocks
-        
-        const existingEvents = await usdcContract.queryFilter(filter, fromBlock, currentBlock);
-        setReferralCount(existingEvents.length);
-        
-        // Listen for new Transfer events
-        const handleTransfer = (from: string, to: string, value: bigint) => {
-          if (from === CONTRACT_ADDRESSES.MAIN_CONTRACT && to === account) {
-            setReferralCount(prev => prev + 1);
-          }
-        };
-        
-        usdcContract.on(filter, handleTransfer);
-        
-        // Cleanup function will be handled in useEffect cleanup
-        return () => {
-          usdcContract.off(filter, handleTransfer);
-        };
-      }
-    } catch (error) {
-      console.error('Error setting up referral listener:', error);
-    }
-  };
 
   const mintNFT = async () => {
     if (!state.isConnected || !state.isCorrectNetwork || !window.ethereum) {
@@ -378,7 +307,7 @@ export const useWeb3 = () => {
           transactionStatus: { status: 'pending', step: 'Approving USDC spending...' }
         }));
         
-        const gasLimit = await estimateGas(usdcContract, 'approve', [CONTRACT_ADDRESSES.MAIN_CONTRACT, requiredAmount]);
+        const gasLimit = await estimateGasWithBuffer(usdcContract, 'approve', [CONTRACT_ADDRESSES.MAIN_CONTRACT, requiredAmount]);
         const approveTx = await usdcContract.approve(CONTRACT_ADDRESSES.MAIN_CONTRACT, requiredAmount, { gasLimit });
         
         setState(prev => ({ 
@@ -405,7 +334,7 @@ export const useWeb3 = () => {
         signer
       );
       
-      const gasLimit = await estimateGas(nftContract, 'mint', [referrer]);
+      const gasLimit = await estimateGasWithBuffer(nftContract, 'mint', [referrer]);
       const mintTx = await nftContract.mint(referrer, { gasLimit });
       
       setState(prev => ({ 
@@ -433,16 +362,7 @@ export const useWeb3 = () => {
     } catch (error: any) {
       console.error('Error minting NFT:', error);
       
-      let errorMessage = 'Failed to mint NFT';
-      if (error.message.includes('insufficient funds')) {
-        errorMessage = 'Insufficient funds for gas fees';
-      } else if (error.message.includes('user rejected')) {
-        errorMessage = 'Transaction rejected by user';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Transaction timeout - please try again';
-      } else if (error.reason) {
-        errorMessage = error.reason;
-      }
+      const errorMessage = parseWeb3Error(error);
       
       setState(prev => ({
         ...prev,
@@ -456,6 +376,8 @@ export const useWeb3 = () => {
 
   useEffect(() => {
     checkIfWalletIsConnected();
+
+    let referralCleanup: (() => void) | undefined;
 
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts: string[]) => {
@@ -477,7 +399,9 @@ export const useWeb3 = () => {
         
         if (numericChainId === NETWORK_CONFIG.chainId && state.account) {
           updateBalances(state.account);
-          setupReferralListener(state.account);
+          setupReferralListener(state.account).then(cleanup => {
+            referralCleanup = cleanup;
+          });
         }
       });
     }
@@ -486,6 +410,9 @@ export const useWeb3 = () => {
       if (window.ethereum) {
         window.ethereum.removeAllListeners('accountsChanged');
         window.ethereum.removeAllListeners('chainChanged');
+      }
+      if (referralCleanup) {
+        referralCleanup();
       }
     };
   }, [checkIfWalletIsConnected, state.account]);
