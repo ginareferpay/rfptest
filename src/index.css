@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ReferPay Design System - Based on brand assets */
+
+@layer base {
+  :root {
+    /* Dark space theme */
+    --background: 220 50% 8%;
+    --background-secondary: 220 45% 12%;
+    --foreground: 35 15% 92%;
+
+    /* Card system */
+    --card: 220 45% 12%;
+    --card-foreground: 35 15% 92%;
+    --card-border: 220 30% 18%;
+
+    /* Brand colors from assets */
+    --primary: 35 85% 55%;
+    --primary-glow: 35 90% 65%;
+    --primary-foreground: 220 50% 8%;
+
+    --electric: 195 100% 50%;
+    --electric-glow: 195 100% 65%;
+
+    --secondary: 220 30% 25%;
+    --secondary-foreground: 35 15% 92%;
+
+    --muted: 220 30% 20%;
+    --muted-foreground: 220 15% 65%;
+
+    --accent: 195 80% 35%;
+    --accent-foreground: 35 15% 92%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 50% 8%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 220 50% 8%;
+
+    --border: 220 30% 18%;
+    --input: 220 30% 18%;
+    --ring: 35 85% 55%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-electric: linear-gradient(135deg, hsl(var(--electric)), hsl(var(--electric-glow)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background-secondary)) 50%, hsl(var(--background)) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--background-secondary)) 100%);
+
+    /* Shadows and glows */
+    --shadow-primary: 0 0 30px hsl(var(--primary) / 0.3);
+    --shadow-electric: 0 0 30px hsl(var(--electric) / 0.3);
+    --shadow-card: 0 8px 32px hsl(220 50% 4% / 0.4);
+    --glow-primary: 0 0 60px hsl(var(--primary) / 0.4);
+    --glow-electric: 0 0 60px hsl(var(--electric) / 0.4);
+
+    /* Animation timings */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-['Inter'] overflow-x-hidden;
+    background: var(--gradient-hero);
+  }
+}
+
+@layer components {
+  /* Circuit pattern background */
+  .circuit-bg {
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--electric) / 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        hsl(var(--border) / 0.1) 2px,
+        hsl(var(--border) / 0.1) 4px
+      );
+  }
+
+  /* Glow effects */
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  
+  .glow-electric {
+    box-shadow: var(--glow-electric);
+  }
+
+  /* Button variants */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    transition: var(--transition-smooth);
+  }
+  
+  .btn-gradient:hover {
+    box-shadow: var(--shadow-primary);
+    transform: translateY(-2px);
+  }
+
+  .btn-electric {
+    background: var(--gradient-electric);
+    transition: var(--transition-smooth);
+  }
+  
+  .btn-electric:hover {
+    box-shadow: var(--shadow-electric);
+    transform: translateY(-2px);
+  }
+
+  /* Card styles */
+  .card-glow {
+    background: var(--gradient-card);
+    border: 1px solid hsl(var(--card-border));
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+
+  .card-glow:hover {
+    box-shadow: var(--shadow-card), var(--shadow-primary);
+    transform: translateY(-4px);
+  }
+
+  /* Text animations */
+  .text-glow {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  .text-electric-glow {
+    text-shadow: 0 0 20px hsl(var(--electric) / 0.5);
+  }
+}
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}
