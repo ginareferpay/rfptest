@@ -43,7 +43,10 @@ export const Header = ({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
+          <a 
+            href="/" 
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
               <div className="w-6 h-6 bg-background rounded-sm flex items-center justify-center">
                 <span className="text-primary font-bold text-sm">R</span>
@@ -53,7 +56,7 @@ export const Header = ({
               <span className="text-lg font-bold text-foreground">ReferPay</span>
               <span className="text-xs text-muted-foreground">.org</span>
             </div>
-          </div>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">

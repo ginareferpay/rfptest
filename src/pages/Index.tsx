@@ -16,6 +16,7 @@ const Index = () => {
     isLoading, 
     error, 
     referrer,
+    referralCount,
     contractInfo,
     transactionStatus,
     connectWallet, 
@@ -28,8 +29,9 @@ const Index = () => {
   const [isMinting, setIsMinting] = useState(false);
 
   const handleDismissTransaction = () => {
-    // Reset transaction status to idle
-    // This would be handled in the useWeb3 hook
+    // Reset transaction status to idle by triggering a state update
+    // For now, this is a placeholder since the transaction status automatically resets
+    console.log('Transaction dismissed');
   };
 
   const handleConnectWallet = async () => {
@@ -93,6 +95,7 @@ const Index = () => {
           balance={balance}
           nftBalance={nftBalance}
           referrer={referrer}
+          referralCount={referralCount}
           contractInfo={contractInfo}
           transactionStatus={transactionStatus}
           onMintNFT={handleMintNFT}

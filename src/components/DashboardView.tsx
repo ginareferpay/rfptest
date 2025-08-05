@@ -25,6 +25,7 @@ interface DashboardViewProps {
   balance: string;
   nftBalance: number;
   referrer: string;
+  referralCount: number;
   contractInfo: ContractInfo;
   transactionStatus: TransactionStatusType;
   onMintNFT: () => void;
@@ -37,6 +38,7 @@ export const DashboardView = ({
   balance, 
   nftBalance, 
   referrer,
+  referralCount,
   contractInfo,
   transactionStatus,
   onMintNFT, 
@@ -141,7 +143,7 @@ export const DashboardView = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-electric">0</div>
+              <div className="text-2xl font-bold text-electric">{referralCount}</div>
               <p className="text-sm text-muted-foreground">Total referred</p>
             </CardContent>
           </Card>
@@ -159,38 +161,40 @@ export const DashboardView = ({
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Referral Card */}
-              <Card className="card-glow">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Gift className="w-5 h-5 mr-2 text-primary" />
-                    Your Referral Link
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="p-3 bg-muted rounded-lg border">
-                    <p className="text-sm font-mono break-all">{referralLink}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => copyToClipboard(referralLink, "Referral link copied to clipboard")}
-                      className="flex-1"
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Link
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => window.open(`https://twitter.com/intent/tweet?text=Join me on ReferPay.org - The future of decentralized funding! ${referralLink}`, '_blank')}
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Earn $1 USDC for each person who mints using your link
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Referral Card - Only show if user has minted NFT */}
+              {nftBalance > 0 && (
+                <Card className="card-glow">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Gift className="w-5 h-5 mr-2 text-primary" />
+                      Your Referral Link
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="p-3 bg-muted rounded-lg border">
+                      <p className="text-sm font-mono break-all">{referralLink}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => copyToClipboard(referralLink, "Referral link copied to clipboard")}
+                        className="flex-1"
+                      >
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Link
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => window.open(`https://twitter.com/intent/tweet?text=Join me on ReferPay.org - The future of decentralized funding! ${referralLink}`, '_blank')}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Earn $1 USDC for each person who mints using your link
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Quick Actions */}
               <Card className="card-glow">
@@ -263,12 +267,12 @@ export const DashboardView = ({
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-primary">$0</div>
+                    <div className="text-2xl font-bold text-primary">${referralCount}</div>
                     <div className="text-sm text-muted-foreground">Referral Earnings</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-electric">0%</div>
-                    <div className="text-sm text-muted-foreground">Conversion Rate</div>
+                    <div className="text-2xl font-bold text-electric">{referralCount}</div>
+                    <div className="text-sm text-muted-foreground">Total Referrals</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-success">$0</div>

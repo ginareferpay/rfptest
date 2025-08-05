@@ -34,6 +34,7 @@ export interface Web3State {
   error: string | null;
   contractInfo: ContractInfo;
   transactionStatus: TransactionStatus;
+  referralCount: number;
 }
 
 export const useWeb3 = () => {
@@ -57,9 +58,11 @@ export const useWeb3 = () => {
       status: 'idle',
       step: '',
     },
+    referralCount: 0,
   });
 
   const [referrer, setReferrer] = useState<string>(FOUNDER_WALLET);
+  const [referralCount, setReferralCount] = useState<number>(0);
 
   useEffect(() => {
     // Parse referrer from URL
@@ -87,6 +90,7 @@ export const useWeb3 = () => {
           
           if (parseInt(chainId, 16) === NETWORK_CONFIG.chainId) {
             await updateBalances(accounts[0]);
+            await setupReferralListener(accounts[0]);
           }
         }
       } catch (error) {
@@ -175,6 +179,7 @@ export const useWeb3 = () => {
         await switchToPolygon();
       } else {
         await updateBalances(accounts[0]);
+        await setupReferralListener(accounts[0]);
       }
     } catch (error: any) {
       console.error('Error connecting wallet:', error);
@@ -241,7 +246,10 @@ export const useWeb3 = () => {
         status: 'idle',
         step: '',
       },
+      referralCount: 0,
     });
+    setReferrer(FOUNDER_WALLET); // Reset referrer to founder wallet
+    setReferralCount(0); // Reset referral count
   };
 
   const checkSufficientBalance = (requiredAmount: string, userBalance: string) => {
@@ -263,6 +271,60 @@ export const useWeb3 = () => {
       setTimeout(() => reject(new Error('Transaction timeout')), timeoutMs)
     );
     return Promise.race([promise, timeout]);
+  };
+
+  const setupReferralListener = async (account: string) => {
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        
+        // Get USDC contract
+        const usdcContract = new ethers.Contract(
+          CONTRACT_ADDRESSES.USDC_TOKEN,
+          [
+            {
+              "anonymous": false,
+              "inputs": [
+                {"indexed": true, "internalType": "address", "name": "from", "type": "address"},
+                {"indexed": true, "internalType": "address", "name": "to", "type": "address"},
+                {"indexed": false, "internalType": "uint256", "name": "value", "type": "uint256"}
+              ],
+              "name": "Transfer",
+              "type": "event"
+            }
+          ],
+          provider
+        );
+
+        // Create filter for Transfer events where:
+        // from = ReferPay main contract
+        // to = current user's wallet  
+        const filter = usdcContract.filters.Transfer(CONTRACT_ADDRESSES.MAIN_CONTRACT, account);
+        
+        // Count existing events (historical referrals)
+        const currentBlock = await provider.getBlockNumber();
+        const fromBlock = Math.max(0, currentBlock - 10000); // Look back ~10k blocks
+        
+        const existingEvents = await usdcContract.queryFilter(filter, fromBlock, currentBlock);
+        setReferralCount(existingEvents.length);
+        
+        // Listen for new Transfer events
+        const handleTransfer = (from: string, to: string, value: bigint) => {
+          if (from === CONTRACT_ADDRESSES.MAIN_CONTRACT && to === account) {
+            setReferralCount(prev => prev + 1);
+          }
+        };
+        
+        usdcContract.on(filter, handleTransfer);
+        
+        // Cleanup function will be handled in useEffect cleanup
+        return () => {
+          usdcContract.off(filter, handleTransfer);
+        };
+      }
+    } catch (error) {
+      console.error('Error setting up referral listener:', error);
+    }
   };
 
   const mintNFT = async () => {
@@ -415,6 +477,7 @@ export const useWeb3 = () => {
         
         if (numericChainId === NETWORK_CONFIG.chainId && state.account) {
           updateBalances(state.account);
+          setupReferralListener(state.account);
         }
       });
     }
@@ -430,6 +493,7 @@ export const useWeb3 = () => {
   return {
     ...state,
     referrer,
+    referralCount,
     connectWallet,
     disconnectWallet,
     switchToPolygon,
