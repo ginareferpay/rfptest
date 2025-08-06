@@ -1,4 +1,4 @@
-import { Github, Twitter, MessageCircle } from 'lucide-react';
+import { Github, Twitter, MessageCircle, Send, Video, Music } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -83,29 +83,51 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <a 
-                  href="https://twitter.com/referpay_org" 
+                  href="https://twitter.com/referpayorg" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-primary transition-colors flex items-center"
                 >
                   <Twitter className="w-4 h-4 mr-2" />
-                  Twitter
+                  X (Twitter)
                 </a>
               </li>
               <li>
                 <a 
-                  href="https://discord.gg/referpay" 
+                  href="https://t.me/referpayorg" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-primary transition-colors flex items-center"
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Discord
+                  <Send className="w-4 h-4 mr-2" />
+                  Telegram
                 </a>
               </li>
               <li>
                 <a 
-                  href="https://github.com/referpay" 
+                  href="https://tiktok.com/@referpayorg" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-primary transition-colors flex items-center"
+                >
+                  <Music className="w-4 h-4 mr-2" />
+                  TikTok
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="https://youtube.com/@referpayorg" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hover:text-primary transition-colors flex items-center"
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  YouTube
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="https://github.com/referpayorg" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="hover:text-primary transition-colors flex items-center"

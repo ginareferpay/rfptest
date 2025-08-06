@@ -256,10 +256,12 @@ export const useWeb3 = () => {
   };
 
 
-  const mintNFT = async () => {
+  const mintNFT = async (referrerAddress?: string) => {
     if (!state.isConnected || !state.isCorrectNetwork || !window.ethereum) {
       throw new Error('Wallet not connected or wrong network');
     }
+    
+    const mintReferrer = referrerAddress || referrer;
 
     // Pre-flight checks
     if (state.contractInfo.isPaused) {
@@ -334,8 +336,8 @@ export const useWeb3 = () => {
         signer
       );
       
-      const gasLimit = await estimateGasWithBuffer(nftContract, 'mint', [referrer]);
-      const mintTx = await nftContract.mint(referrer, { gasLimit });
+      const gasLimit = await estimateGasWithBuffer(nftContract, 'mint', [mintReferrer]);
+      const mintTx = await nftContract.mint(mintReferrer, { gasLimit });
       
       setState(prev => ({ 
         ...prev, 
@@ -417,6 +419,13 @@ export const useWeb3 = () => {
     };
   }, [checkIfWalletIsConnected, state.account]);
 
+  const dismissTransaction = () => {
+    setState(prev => ({
+      ...prev,
+      transactionStatus: { status: 'idle', step: '' }
+    }));
+  };
+
   return {
     ...state,
     referrer,
@@ -425,5 +434,6 @@ export const useWeb3 = () => {
     disconnectWallet,
     switchToPolygon,
     mintNFT,
+    dismissTransaction,
   };
 };

@@ -22,16 +22,15 @@ const Index = () => {
     connectWallet, 
     disconnectWallet, 
     switchToPolygon, 
-    mintNFT 
+    mintNFT,
+    dismissTransaction
   } = useWeb3();
   
   const { toast } = useToast();
   const [isMinting, setIsMinting] = useState(false);
 
   const handleDismissTransaction = () => {
-    // Reset transaction status to idle by triggering a state update
-    // For now, this is a placeholder since the transaction status automatically resets
-    console.log('Transaction dismissed');
+    dismissTransaction();
   };
 
   const handleConnectWallet = async () => {
@@ -46,10 +45,10 @@ const Index = () => {
     }
   };
 
-  const handleMintNFT = async () => {
+  const handleMintNFT = async (referrerAddress?: string) => {
     try {
       setIsMinting(true);
-      const txHash = await mintNFT();
+      const txHash = await mintNFT(referrerAddress);
       toast({
         title: "Success!",
         description: `NFT minted successfully! Transaction: ${txHash}`,

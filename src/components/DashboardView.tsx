@@ -28,7 +28,7 @@ interface DashboardViewProps {
   referralCount: number;
   contractInfo: ContractInfo;
   transactionStatus: TransactionStatusType;
-  onMintNFT: () => void;
+  onMintNFT: (referrerAddress?: string) => void;
   isLoading: boolean;
   onDismissTransaction?: () => void;
 }
@@ -211,7 +211,7 @@ export const DashboardView = ({
                         You don't have a Founding Deed yet. Mint one to unlock all dashboard features.
                       </p>
                       <Button
-                        onClick={onMintNFT}
+                        onClick={() => onMintNFT(referrer)}
                         disabled={
                           isLoading || 
                           contractInfo.isPaused || 
