@@ -80,16 +80,14 @@ export const Header = ({
                     {account && formatAddress(account)}
                   </span>
                 </div>
-                {showDashboardNav && (
-                  <Button
-                    onClick={onDisconnectWallet}
-                    variant="outline"
-                    size="sm"
-                    className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                  >
-                    Disconnect
-                  </Button>
-                )}
+                <Button
+                  onClick={onDisconnectWallet}
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                >
+                  Disconnect
+                </Button>
               </div>
             ) : (
               <Button
@@ -134,7 +132,7 @@ export const Header = ({
                 </a>
               ))}
               
-              <div className="pt-4 border-t border-card-border">
+                <div className="pt-4 border-t border-card-border">
                 {isConnected ? (
                   <div className="space-y-3">
                     <div className="px-3 py-2 rounded-lg bg-card border border-card-border">
@@ -142,19 +140,17 @@ export const Header = ({
                         {account && formatAddress(account)}
                       </span>
                     </div>
-                    {showDashboardNav && (
-                      <Button
-                        onClick={() => {
-                          onDisconnectWallet();
-                          setIsMenuOpen(false);
-                        }}
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                      >
-                        Disconnect Wallet
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => {
+                        onDisconnectWallet();
+                        setIsMenuOpen(false);
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                    >
+                      Disconnect Wallet
+                    </Button>
                   </div>
                 ) : (
                   <Button
