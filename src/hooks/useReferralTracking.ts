@@ -49,6 +49,11 @@ export const useReferralTracking = () => {
       );
 
       // Create filter for Transfer events where from = ReferPay contract and to = user (normalized)
+      console.log('🔧 Creating filter with:', {
+        mainContract: CONTRACT_ADDRESSES.MAIN_CONTRACT,
+        user: acct,
+        usdcToken: CONTRACT_ADDRESSES.USDC_TOKEN
+      });
       const filter = usdcContract.filters.Transfer(CONTRACT_ADDRESSES.MAIN_CONTRACT, acct);
       
       // Use cached count for faster initial UI
@@ -75,8 +80,14 @@ export const useReferralTracking = () => {
           contract: CONTRACT_ADDRESSES.MAIN_CONTRACT,
           fromBlock,
           currentBlock,
-          filter: filter.fragment
+          usdcContractAddress: CONTRACT_ADDRESSES.USDC_TOKEN
         });
+        
+        // أيضا دعنا نتحقق من جميع أحداث Transfer إلى المستخدم (بدون فلتر العقد)
+        const allTransfersFilter = usdcContract.filters.Transfer(null, acct);
+        const allTransfers = await usdcContract.queryFilter(allTransfersFilter, fromBlock, currentBlock);
+        console.log('📈 All USDC transfers to user:', allTransfers.length, allTransfers);
+        
         existingEvents = await usdcContract.queryFilter(filter, fromBlock, currentBlock);
         console.log('📊 Found historical events:', existingEvents.length, existingEvents);
       } catch (error) {
