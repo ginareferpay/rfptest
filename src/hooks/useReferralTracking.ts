@@ -70,7 +70,15 @@ export const useReferralTracking = () => {
       try {
         const currentBlock = await provider.getBlockNumber();
         fromBlock = Math.max(0, currentBlock - 100000); // Look back further for complete history
+        console.log('🔍 Searching for referrals:', {
+          user: acct,
+          contract: CONTRACT_ADDRESSES.MAIN_CONTRACT,
+          fromBlock,
+          currentBlock,
+          filter: filter.fragment
+        });
         existingEvents = await usdcContract.queryFilter(filter, fromBlock, currentBlock);
+        console.log('📊 Found historical events:', existingEvents.length, existingEvents);
       } catch (error) {
         console.warn('Failed to fetch 100k range, trying 10k:', error);
         try {
@@ -95,6 +103,7 @@ export const useReferralTracking = () => {
         }
       }
       
+      console.log('✅ Setting referral count to:', existingEvents.length);
       setReferralCount(existingEvents.length);
       try {
         localStorage.setItem(cacheKey, JSON.stringify({ value: existingEvents.length, ts: Date.now() }));
@@ -102,7 +111,9 @@ export const useReferralTracking = () => {
       
       // Listen for new Transfer events
       const handleTransfer = (from: string, to: string, value: bigint) => {
+        console.log('🎯 Transfer event received:', { from, to, value: value.toString(), acct });
         if (from?.toLowerCase() === CONTRACT_ADDRESSES.MAIN_CONTRACT.toLowerCase() && to?.toLowerCase() === acct) {
+          console.log('✅ Transfer matches user - incrementing count');
           pendingIncrementsRef.current += 1;
           if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
           debounceTimerRef.current = setTimeout(() => {
