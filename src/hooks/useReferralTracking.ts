@@ -49,7 +49,7 @@ export const useReferralTracking = () => {
       );
 
       // Create filter for Transfer events where from = ReferPay contract and to = user (normalized)
-      const filter = usdcContract.filters.Transfer(CONTRACT_ADDRESSES.MAIN_CONTRACT, account);
+      const filter = usdcContract.filters.Transfer(CONTRACT_ADDRESSES.MAIN_CONTRACT, acct);
       
       // Use cached count for faster initial UI
       const cacheKey = `rp_ref_count_${acct}`;
