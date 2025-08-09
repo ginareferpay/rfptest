@@ -18,7 +18,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { ContractStats } from './ContractStats';
 import { TransactionStatus } from './TransactionStatus';
-import { AIToolkit } from './ai/AIToolkit';
 import { ContractInfo, TransactionStatus as TransactionStatusType } from '@/hooks/useWeb3';
 
 interface DashboardViewProps {
@@ -343,11 +342,24 @@ export const DashboardView = ({
 
           {/* AI Toolkit Tab */}
           <TabsContent value="ai-toolkit">
-            <AIToolkit 
-              referralCount={referralCount}
-              account={account}
-              nftBalance={nftBalance}
-            />
+            <Card className="card-glow">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Bot className="w-5 h-5 mr-2" />
+                  AI Toolkit
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Bot className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold text-foreground mb-2">AI Tools Coming Soon</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Access powerful AI tools for marketing, content creation, and business development. 
+                    Exclusive to Founding Deed holders.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
